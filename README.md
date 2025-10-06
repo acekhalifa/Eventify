@@ -3,14 +3,14 @@
 A RESTful API for managing events and participants built with **Spring Boot** and **Spring Data JPA**.
 
 
-## 🎉 Overview
+## Overview
 
 **Eventify** is a simple yet powerful event management system designed for organizations to:
 - Create and manage events (conferences, weddings, training sessions, etc.)
 - Add participants via bulk file upload (CSV) and manually
 - Search and filter events efficiently
 
-## ✨ Features
+## Features
 
 ### Event Management
 - ✅ **Create Events** - Add new events with title, description, date, and location
@@ -37,11 +37,9 @@ A RESTful API for managing events and participants built with **Spring Boot** an
 | **Spring Data JPA** | Data persistence layer |
 | **H2 Database** | In-memory database (dev) |
 | **Hibernate** | ORM implementation |
-| **Lombok** | Reduce boilerplate code |
 | **SpringDoc OpenAPI** | API documentation (Swagger) |
-| **Apache POI** | Excel file processing |
 | **Apache Commons CSV** | CSV file processing |
-| ** Validation** | Input validatio
+| ** Validation** | Input validation
 
 ## 🚀 Getting Started
 
@@ -92,13 +90,8 @@ You can:
 - View all endpoints with request/response schemas
 - Test endpoints directly from the browser
 - See example requests and responses
-- Download OpenAPI specification
 
-### OpenAPI JSON
-
-Raw OpenAPI specification: **http://localhost:8080/api-docs**
-
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Events
 
@@ -117,129 +110,8 @@ Raw OpenAPI specification: **http://localhost:8080/api-docs**
 | Method | Endpoint | Description | Status Codes |
 |--------|----------|-------------|--------------|
 | GET | `/api/events/{eventId}/participants` | Get all participants | 200, 404 |
+| POST | `/api/events/{eventId}/participants` | create a particpant | 201, 400, 404 |
 | POST | `/api/events/{eventId}/participants/upload` | Upload participants file | 201, 400, 404 |
-
-## 📝 Sample Requests
-
-### 1. Create an Event
-
-```bash
-curl -X POST http://localhost:8080/api/events \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Tech Conference 2025",
-    "description": "Annual technology conference",
-    "eventDate": "2025-12-15T10:00:00",
-    "location": "Lagos Convention Center"
-  }'
-```
-
-**Response (201 Created):**
-```json
-{
-  "id": 1,
-  "title": "Tech Conference 2025",
-  "description": "Annual technology conference",
-  "eventDate": "2025-12-15T10:00:00",
-  "location": "Lagos Convention Center",
-  "participantCount": 0,
-  "createdAt": "2025-10-03T14:30:00",
-  "updatedAt": "2025-10-03T14:30:00"
-}
-```
-
-### 2. Search Events
-
-```bash
-curl -X GET "http://localhost:8080/api/events/search?keyword=tech"
-```
-
-### 3. Update Event (PATCH)
-
-```bash
-curl -X PATCH http://localhost:8080/api/events/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "location": "Abuja Convention Center"
-  }'
-```
-
-### 4. Upload Participants
-
-```bash
-curl -X POST http://localhost:8080/api/events/1/participants/upload \
-  -F "file=@participants.csv"
-```
-
-**Response (201 Created):**
-```json
-{
-  "totalRecords": 100,
-  "successCount": 95,
-  "failureCount": 5,
-  "errors": [
-    "Row skipped: Invalid email format - invalid@",
-    "Failed to add john@example.com: Participant already exists for this event"
-  ],
-  "addedParticipants": [
-    {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "phone": "+234-801-234-5678",
-      "invitationStatus": "PENDING",
-      "createdAt": "2025-10-03T14:35:00"
-    }
-  ]
-}
-```
-
-### 5. Get Event Participants
-
-```bash
-curl -X GET http://localhost:8080/api/events/1/participants
-```
-
-### 6. Delete Event
-
-```bash
-curl -X DELETE http://localhost:8080/api/events/1
-```
-
-**Response: 204 No Content**
-
-## 📄 Sample Files
-
-### CSV Format (participants.csv)
-
-```csv
-name,email,phone
-John Doe,john.doe@example.com,+234-801-234-5678
-Jane Smith,jane.smith@example.com,+234-802-345-6789
-Bob Johnson,bob.johnson@example.com,+234-803-456-7890
-```
-
-**Required Headers:**
-- `name` - Participant full name (required)
-- `email` - Valid email address (required)
-- `phone` - Phone number (optional)
-
-### Excel Format (participants.xlsx)
-
-| name | email | phone |
-|------|-------|-------|
-| John Doe | john.doe@example.com | +234-801-234-5678 |
-| Jane Smith | jane.smith@example.com | +234-802-345-6789 |
-| Bob Johnson | bob.johnson@example.com | +234-803-456-7890 |
-
-**Supported Formats:**
-- `.csv` - Comma-separated values
-- `.xlsx` - Excel 2007 and later
-- `.xls` - Excel 97-2003 (via XLSX format)
-
-**File Size Limit:** 10MB
-
-## 🗄 Database Schema
 
 ### Events Table
 
@@ -251,7 +123,6 @@ CREATE TABLE events (
     event_date TIMESTAMP NOT NULL,
     location VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
 );
 ```
 
@@ -276,37 +147,8 @@ CREATE TABLE participants (
 - Cascade Delete: Deleting an event removes all its participants
 - Unique Constraint: Email must be unique per event
 
-## 🎨 Entity Relationships
 
-```
-┌─────────────────┐
-│     Event       │
-├─────────────────┤
-│ id (PK)         │
-│ title           │
-│ description     │
-│ eventDate       │
-│ location        │
-│ createdAt       │
-│ updatedAt       │
-└────────┬────────┘
-         │
-         │ 1:N (cascade delete)
-         │
-┌────────▼────────┐
-│  Participant    │
-├─────────────────┤
-│ id (PK)         │
-│ name            │
-│ email           │
-│ phone           │
-│ invitationStatus│
-│ event_id (FK)   │
-│ createdAt       │
-└─────────────────┘
-```
-
-## ⚠️ Error Handling
+## Error Handling
 
 The API returns consistent error responses:
 
@@ -362,48 +204,6 @@ The API returns consistent error responses:
   "timestamp": "2025-10-03T14:30:00",
   "path": "uri=/api/events"
 }
-```
-
-## 🧪 Testing the API
-
-### Using Swagger UI (Recommended)
-
-1. Navigate to http://localhost:8080/swagger-ui.html
-2. Expand any endpoint
-3. Click "Try it out"
-4. Fill in the parameters
-5. Click "Execute"
-6. View the response
-
-### Using cURL
-
-See [Sample Requests](#sample-requests) section above.
-
-### Using Postman
-
-1. Import the OpenAPI spec: http://localhost:8080/api-docs
-2. Or manually create requests using the endpoint documentation
-
-## 🔧 Configuration
-
-### Application Properties
-
-Key configurations in `application.properties`:
-
-```properties
-# Server Configuration
-server.port=8080
-
-# Database (H2 in-memory)
-spring.datasource.url=jdbc:h2:mem:eventifydb
-
-# File Upload Limits
-spring.servlet.multipart.max-file-size=10MB
-spring.servlet.multipart.max-request-size=10MB
-
-# Swagger
-springdoc.swagger-ui.path=/swagger-ui.html
-```
 
 ## 👨‍💻 Author
 

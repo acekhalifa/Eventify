@@ -27,7 +27,7 @@ public class ParticipantService {
         this.participantMapper = participantMapper;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<ParticipantResponse> getEventParticipants(Long eventId) {
         eventService.findEventById(eventId);
 
@@ -36,7 +36,7 @@ public class ParticipantService {
     }
 
 
-    public ParticipantResponse createParticipantWithEventId(long eventId, ParticipantRequest request){
+    public ParticipantResponse addParticipant(long eventId, ParticipantRequest request){
 
         var event = eventService.findEventById(eventId);
         if(event == null) throw new ResourceNotFoundException("Event with ID: "+eventId+" doesn't exist.");
@@ -46,7 +46,7 @@ public class ParticipantService {
     }
 
 
-    public Participant createParticipantWithEventId(Event event, String name, String email, String phone) {
+    public Participant addParticipant(Event event, String name, String email, String phone) {
         if (participantRepository.existsByEventIdAndEmail(event.getId(), email)) {
             throw new IllegalArgumentException("Participant with email " + email + " already exists for this event");
         }

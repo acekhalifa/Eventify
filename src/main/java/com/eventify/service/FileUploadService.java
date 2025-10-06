@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Pattern;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,10 +26,11 @@ import java.util.List;
 @Service
 public class FileUploadService {
 
-    private ParticipantService participantService;
-    private EventService eventService;
-    private ParticipantMapper participantMapper;
+    private final ParticipantService participantService;
+    private final EventService eventService;
+    private final ParticipantMapper participantMapper;
 
+    @Autowired
     public FileUploadService(ParticipantService participantService, EventService eventService, ParticipantMapper participantMapper) {
         this.participantService = participantService;
         this.eventService = eventService;
@@ -89,13 +91,10 @@ public class FileUploadService {
     private BulkUploadResponse processParticipants(Event event, List<ParticipantData> participantsData) {
 
         List<Participant> addedParticipants = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
-        int successCount = 0;
-        int failureCount = 0;
 
         for (ParticipantData data : participantsData) {
 
-                Participant participant = participantService.createParticipantWithEventId(
+                Participant participant = participantService.addParticipant(
                         event,
                         data.getName(),
                         data.getEmail(),

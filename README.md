@@ -78,14 +78,9 @@ Once running, access:
 
 ### Swagger UI
 
-The complete, interactive API documentation is available at:
+The API documentation is available at:
 
 **http://localhost:8080/swagger-ui.html**
-
-You can:
-- View all endpoints with request/response schemas
-- Test endpoints directly from the browser
-- See example requests and responses
 
 ## API Endpoints
 
@@ -111,7 +106,7 @@ You can:
 
 
 
-## 👨‍💻 Author
+## Author
 
 **Anas Yakubu**
 - GitHub: [@acekhalifa](https://github.com/acekhalifa)

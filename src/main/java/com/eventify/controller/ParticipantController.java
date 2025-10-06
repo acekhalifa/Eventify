@@ -57,7 +57,7 @@ public class ParticipantController {
     public ResponseEntity<ParticipantResponse> createEvent(
             @Parameter(description = "Event ID") @PathVariable Long eventId,
             @Valid @RequestBody ParticipantRequest request) {
-        ParticipantResponse response = participantService.createParticipantWithEventId(request);
+        ParticipantResponse response = participantService.createParticipantWithEventId(eventId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -34,7 +34,7 @@ A RESTful API for managing events and participants built with **Spring Boot** an
 
 | Technology | Purpose |
 |------------|---------|
-| **Spring Boot ** | Application framework |
+| **Spring Boot** | Application framework |
 | **Spring Data JPA** | Data persistence layer |
 | **H2 Database** | In-memory database |
 | **Hibernate** | ORM implementation |
@@ -42,7 +42,7 @@ A RESTful API for managing events and participants built with **Spring Boot** an
 | **Apache Commons CSV** | CSV file processing |
 | **Java JDK 25** | Primary Language |
 | **Maven 3.9.11** | Build tool |
-| ** Jakarta Validation ** | Input validation |
+| **Jakarta Validation** | Input validation |
 
 
 ### Installation

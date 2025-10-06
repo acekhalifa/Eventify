@@ -57,6 +57,10 @@ class ValidationErrorResponse extends ErrorResponse{
     @Override
     public String toString() {
         return "ValidationErrorResponse{" +
+                "status=" + getStatus() +
+                ", message='" + getMessage() + '\'' +
+                ", timestamp=" + getTimestamp() +
+                ", path='" + getPath() + '\'' +
                 "fieldErrors=" + fieldErrors +
                 '}';
     }

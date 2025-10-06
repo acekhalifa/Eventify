@@ -6,8 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public class BulkUploadResponse {
-//    @Schema(description = "Total records processed", example = "100")
-//    private Integer totalRecords;
 
     @Schema(description = "Successfully added participants", example = "95")
     private Integer successCount;

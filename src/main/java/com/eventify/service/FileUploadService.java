@@ -105,7 +105,6 @@ public class FileUploadService {
         }
 
         BulkUploadResponse response = new BulkUploadResponse();
-        response.setSuccessCount(successCount);
         response.setAddedParticipants(participantMapper.toResponseList(addedParticipants));
 
         return response;

@@ -4,8 +4,10 @@ import com.eventify.dtos.ParticipantRequest;
 import com.eventify.dtos.ParticipantResponse;
 import com.eventify.entity.Event;
 import com.eventify.entity.Participant;
+import com.eventify.exception.ResourceNotFoundException;
 import com.eventify.mapper.ParticipantMapper;
 import com.eventify.repository.ParticipantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ public class ParticipantService {
     private final EventService eventService;
     private final ParticipantMapper participantMapper;
 
+    @Autowired
     public ParticipantService(ParticipantRepository participantRepository, EventService eventService, ParticipantMapper participantMapper) {
         this.participantRepository = participantRepository;
         this.eventService = eventService;
@@ -33,13 +36,17 @@ public class ParticipantService {
     }
 
 
-    public ParticipantResponse addParticipant(ParticipantRequest request){
+    public ParticipantResponse createParticipantWithEventId(long eventId, ParticipantRequest request){
+
+        var event = eventService.findEventById(eventId);
+        if(event == null) throw new ResourceNotFoundException("Event with ID: "+eventId+" doesn't exist.");
         var participant = participantMapper.toParticipant(request);
+        participant.setEvent(event);
         return participantMapper.toResponse(participantRepository.save(participant));
     }
 
 
-    public Participant addParticipant(Event event, String name, String email, String phone) {
+    public Participant createParticipantWithEventId(Event event, String name, String email, String phone) {
         if (participantRepository.existsByEventIdAndEmail(event.getId(), email)) {
             throw new IllegalArgumentException("Participant with email " + email + " already exists for this event");
         }

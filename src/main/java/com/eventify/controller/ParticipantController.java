@@ -1,7 +1,6 @@
 package com.eventify.controller;
 
-import com.eventify.dtos.BulkUploadResponse;
-import com.eventify.dtos.ParticipantResponse;
+import com.eventify.dtos.*;
 import com.eventify.service.FileUploadService;
 import com.eventify.service.ParticipantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,6 +45,20 @@ public class ParticipantController {
             @Parameter(description = "Event ID") @PathVariable Long eventId) {
         List<ParticipantResponse> participants = participantService.getEventParticipants(eventId);
         return ResponseEntity.ok(participants);
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new participant", description = "Creates a new Participant with the provided details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Participant created successfully",
+                    content = @Content(schema = @Schema(implementation = ParticipantResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
+    public ResponseEntity<ParticipantResponse> createEvent(
+            @Parameter(description = "Event ID") @PathVariable Long eventId,
+            @Valid @RequestBody ParticipantRequest request) {
+        ParticipantResponse response = participantService.createParticipantWithEventId(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

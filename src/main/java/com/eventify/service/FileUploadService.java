@@ -95,7 +95,7 @@ public class FileUploadService {
 
         for (ParticipantData data : participantsData) {
 
-                Participant participant = participantService.addParticipant(
+                Participant participant = participantService.createParticipantWithEventId(
                         event,
                         data.getName(),
                         data.getEmail(),

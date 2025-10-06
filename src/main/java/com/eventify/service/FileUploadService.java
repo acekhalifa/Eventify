@@ -1,10 +1,8 @@
 package com.eventify.service;
 
-import com.eventify.dtos.BulkUploadResponse;
+import com.eventify.dtos.ParticipantResponse;
 import com.eventify.entity.Event;
-import com.eventify.entity.Participant;
 import com.eventify.exception.ResourceNotFoundException;
-import com.eventify.mapper.ParticipantMapper;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,16 +26,14 @@ public class FileUploadService {
 
     private final ParticipantService participantService;
     private final EventService eventService;
-    private final ParticipantMapper participantMapper;
 
     @Autowired
-    public FileUploadService(ParticipantService participantService, EventService eventService, ParticipantMapper participantMapper) {
+    public FileUploadService(ParticipantService participantService, EventService eventService) {
         this.participantService = participantService;
         this.eventService = eventService;
-        this.participantMapper = participantMapper;
     }
 
-    public BulkUploadResponse uploadParticipants(Long eventId, MultipartFile file){
+    public List<ParticipantResponse> uploadParticipants(Long eventId, MultipartFile file){
         var event = eventService.findEventById(eventId);
         if(event == null) throw new ResourceNotFoundException("event with the id " +eventId+ " not found");
         if(file == null) throw new IllegalArgumentException("File is required");
@@ -56,7 +52,6 @@ public class FileUploadService {
 
     private List<ParticipantData> parseCSV(MultipartFile file) {
         List<ParticipantData> participants = new ArrayList<>();
-        int count = 0;
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
              CSVParser csvParser = new CSVParser(reader,
@@ -69,7 +64,6 @@ public class FileUploadService {
 
             for (CSVRecord record : csvParser) {
                 try {
-                    ++count;
                     ParticipantData data = new ParticipantData();
                     data.setName(record.get("name"));
                     data.setEmail(record.get("email"));
@@ -88,13 +82,13 @@ public class FileUploadService {
         return participants;
     }
 
-    private BulkUploadResponse processParticipants(Event event, List<ParticipantData> participantsData) {
+    private List<ParticipantResponse> processParticipants(Event event, List<ParticipantData> participantsData) {
 
-        List<Participant> addedParticipants = new ArrayList<>();
+        List<ParticipantResponse> addedParticipants = new ArrayList<>();
 
         for (ParticipantData data : participantsData) {
 
-                Participant participant = participantService.addParticipant(
+                var participant = participantService.addParticipant(
                         event,
                         data.getName(),
                         data.getEmail(),
@@ -104,10 +98,7 @@ public class FileUploadService {
                 addedParticipants.add(participant);
         }
 
-        BulkUploadResponse response = new BulkUploadResponse();
-        response.setAddedParticipants(participantMapper.toResponseList(addedParticipants));
-
-        return response;
+        return addedParticipants;
     }
 
     private static class ParticipantData {

@@ -46,7 +46,7 @@ public class ParticipantService {
     }
 
 
-    public Participant addParticipant(Event event, String name, String email, String phone) {
+    public ParticipantResponse addParticipant(Event event, String name, String email, String phone) {
         if (participantRepository.existsByEventIdAndEmail(event.getId(), email)) {
             throw new IllegalArgumentException("Participant with email " + email + " already exists for this event");
         }
@@ -58,6 +58,6 @@ public class ParticipantService {
         participant.setInvitationStatus(Participant.InvitationStatus.PENDING);
         participant.setEvent(event);
 
-        return participantRepository.save(participant);
+        return participantMapper.toResponse(participantRepository.save(participant));
     }
 }

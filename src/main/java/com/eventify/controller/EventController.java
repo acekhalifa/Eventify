@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/events")
 @Tag(name = "Events", description = "Event management APIs")
 public class EventController {

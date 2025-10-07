@@ -26,13 +26,9 @@ public class EventService{
     @Transactional
     public EventResponse createEvent(EventRequest request) {
 
-        Event event = new Event();
-        event.setTitle(request.getTitle());
-        event.setDescription(request.getDescription());
-        event.setEventDate(request.getEventDate());
-        event.setLocation(request.getLocation());
+        Event event = eventMapper.toEntity(request);
 
-        Event savedEvent = eventRepository.save(event);
+        var savedEvent = eventRepository.save(event);
 
         return eventMapper.toResponse(event);
     }
@@ -57,7 +53,6 @@ public class EventService{
         event.setDescription(request.getDescription());
         event.setEventDate(request.getEventDate());
         event.setLocation(request.getLocation());
-
         Event updatedEvent = eventRepository.save(event);
 
         return eventMapper.toResponse(updatedEvent);

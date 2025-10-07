@@ -67,11 +67,11 @@ public class ParticipantController {
                     "File must have headers: name, email, phone (optional)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "File processed successfully",
-                    content = @Content(schema = @Schema(implementation = BulkUploadResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ParticipantResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid file format or content"),
             @ApiResponse(responseCode = "404", description = "Event not found")
     })
-    public ResponseEntity<BulkUploadResponse> uploadParticipants(
+    public ResponseEntity<List<ParticipantResponse>> uploadParticipants(
             @Parameter(description = "Event ID") @PathVariable Long eventId,
             @Parameter(description = "CSV file containing participants")
             @RequestParam("file") MultipartFile file) {
@@ -80,7 +80,7 @@ public class ParticipantController {
             throw new IllegalArgumentException("File is empty");
         }
 
-        BulkUploadResponse response = fileUploadService.uploadParticipants(eventId, file);
+        var response = fileUploadService.uploadParticipants(eventId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

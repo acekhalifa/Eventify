@@ -33,15 +33,15 @@ public class FileUploadService {
         this.eventService = eventService;
     }
 
-    public List<ParticipantResponse> uploadParticipants(Long eventId, MultipartFile file){
+    public List<ParticipantResponse> uploadParticipants(Long eventId, MultipartFile file) {
         var event = eventService.findEventById(eventId);
-        if(event == null) throw new ResourceNotFoundException("event with the id " +eventId+ " not found");
-        if(file == null) throw new IllegalArgumentException("File is required");
+        if (event == null) throw new ResourceNotFoundException("event with the id " + eventId + " not found");
+        if (file == null) throw new IllegalArgumentException("File is required");
         String fileName = file.getOriginalFilename();
-        if(fileName == null || fileName.isBlank()){
+        if (fileName == null || fileName.isBlank()) {
             throw new IllegalArgumentException("Filename is required");
         }
-        if(!fileName.endsWith("csv")){
+        if (!fileName.endsWith("csv")) {
             throw new IllegalArgumentException("Unsupported File Format. Only CSV files supported for now");
         }
         List<ParticipantData> participantsData = parseCSV(file);
@@ -88,20 +88,20 @@ public class FileUploadService {
 
         for (ParticipantData data : participantsData) {
 
-                var participant = participantService.addParticipant(
-                        event,
-                        data.getName(),
-                        data.getEmail(),
-                        data.getPhone()
-                );
+            var participant = participantService.addParticipant(
+                    event,
+                    data.getName(),
+                    data.getEmail(),
+                    data.getPhone()
+            );
 
-                addedParticipants.add(participant);
+            addedParticipants.add(participant);
         }
 
         return addedParticipants;
     }
 
-    private static class ParticipantData {
+    public static class ParticipantData {
         @NotNull
         @NotBlank
         private String name;

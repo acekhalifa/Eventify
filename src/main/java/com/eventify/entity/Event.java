@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -26,6 +26,10 @@ public class Event {
 
     @Column(nullable = false)
     private String location;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organiser_id", nullable = false)
+    private Organiser organiser;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Participant> participants = new ArrayList<>();
@@ -98,6 +102,11 @@ public class Event {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public void addParticipant(Participant participant) {
         participants.add(participant);
         participant.setEvent(this);
@@ -106,10 +115,6 @@ public class Event {
     public void removeParticipant(Participant participant) {
         participants.remove(participant);
         participant.setEvent(null);
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     @Override

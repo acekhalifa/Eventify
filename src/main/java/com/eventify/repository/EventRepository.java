@@ -7,9 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
+
+    @Override
+    Optional<Event> findById(Long aLong);
 
     @Query("SELECT e FROM Event e WHERE " +
             "LOWER(e.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

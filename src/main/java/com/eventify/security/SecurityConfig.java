@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/api-docs/**",
                                 "/swagger-ui.html",
                                 "/h2-console/**"
                         ).permitAll()
@@ -45,9 +46,6 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // Allow H2 Console frames
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
@@ -64,7 +62,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

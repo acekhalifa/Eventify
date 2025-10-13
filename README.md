@@ -158,14 +158,14 @@ Since JWTs are sensitive, they should never be transmitted over unsecured HTTP. 
 
 You must have a Java Keystore (.keystore) file containing your SSL certificate and private key.
 
-# Configuration
+### Configuration
 A Keystore file containing the SSL certificate and private key required for https to work is configured in the  resources folder and the application.properties file
 
-# Accessing the Application
+### Accessing the Application
 After running mvn spring-boot:run, the application will be accessible via prefixing HTTPS to all endpoints e.g.:
 Swagger UI: https://localhost:8443/swagger-ui.html
 
-# Security Warning (Self-Signed Certificate)
+### Security Warning (Self-Signed Certificate)
 Because the application is configured with a local, self-signed certificate, your browser (Chrome, Firefox, etc.) will display a security warning ("Your connection is not private") when you first access https://localhost:8443.
 
 Action: You must click the "Advanced" or "Proceed/Accept the Risk" option to bypass the warning and continue to the application. This is expected behavior for local development certificates.

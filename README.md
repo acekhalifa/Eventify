@@ -1,6 +1,6 @@
 #  Eventify - Event Management System
 
-A RESTful API for managing events and participants built with **Spring Boot** and **Spring Data JPA**.
+A secured RESTful API for managing events and participants with JWT authentication and user ownership built with Spring Boot, Spring Data JPA and Spring Security with support(local) for HTTPS.
 
 
 ## Overview
@@ -9,8 +9,14 @@ A RESTful API for managing events and participants built with **Spring Boot** an
 - Create and manage events (conferences, weddings, training sessions, etc.)
 - Add participants via bulk file upload or manually
 - Search and filter events efficiently
+- Register users/organizers who can perform the above operations
+- Ensures creation and management of events and their associated participants can only be possible with logged in users
+- Each logged in user only has access to create and manage their own events (scoped access).
 
 ## Features
+### User Management
+-  **Register Users** - Add new Users with name, email, and password
+-  **Login Users** - allows created users to create and manage event by providing email and password
 
 ### Event Management
 -  **Create Events** - Add new events with title, description, date, and location
@@ -23,12 +29,24 @@ A RESTful API for managing events and participants built with **Spring Boot** an
 -  **Bulk Upload** - Import participants via CSV file
    **Manual Upload** - Create a participant for an event
 -  **List Participants** - Get all participants for a specific event
+-  Invitation Status Tracking - PENDING, ACCEPTED, DECLINED
 
 ### API Features
 - **RESTful Design** - Proper HTTP verbs and status codes
 -  **Swagger/OpenAPI** - Interactive API documentation
 - **Error Handling** - Meaningful error messages
 -  **Data Validation** - Input validation with clear feedback
+
+
+### API Security Features
+
+- **Authentication required** for all endpoints except `/api/auth/**` 
+- **User ownership enforcement** - Users can only access their own data  
+- **Stateless sessions** - No server-side session storage  
+- **Bearer token** authorization standard  
+- **Input validation** on all request bodies
+- **HTTPS enabled** all endpoints are accessed 
+
 
 ## Technologies used
 
@@ -63,13 +81,13 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-The application will start on `http://localhost:8080`
+The application will start on `https://localhost:8443`
 
 ### Quick Test
 
 Once running, access:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **H2 Console**: http://localhost:8080/h2-console
+- **Swagger UI**: https://localhost:8443/swagger-ui.html
+- **H2 Console**: https://localhost:8443/h2-console
   - JDBC URL: `jdbc:h2:mem:eventifydb`
   - Username: `sa`
   - Password: *(leave empty)*
@@ -80,10 +98,16 @@ Once running, access:
 
 The API documentation is available at:
 
-**http://localhost:8080/swagger-ui.html**
+**https://localhost:8443/swagger-ui.html**
 
 ## API Endpoints
 
+### Authentication (Public, No Authentication Required)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | User login |
 ### Events
 
 | Method | Endpoint | Description | Status Codes |
@@ -104,6 +128,24 @@ The API documentation is available at:
 | POST | `/api/events/{eventId}/participants` | create a particpant | 201, 400 |
 | POST | `/api/events/{eventId}/participants/upload` | Upload participants file | 201, 400, 404 |
 
+## Pagination
+
+All list endpoints support pagination with these query parameters:
+
+| Parameter | Description |
+|-----------|-------------|
+| `page` | Page number (0-indexed) |
+| `size` | Items per page | 
+| `sort` | Sort field and direction 
+
+Simple Authentication Flow
+The Eventify authentication process uses a Stateless JWT (JSON Web Token) flow, which means the server never stores session data. Every request is verified using the token itself.
+
+The 3-Step Process:
+Step	Action	Endpoint & Headers	Description
+1. Login/Register	The user sends credentials (email, password) to the public authentication endpoint.	POST /api/auth/login	The server verifies the credentials and, if valid, generates a signed JWT.
+2. Receive Token	The user's client receives the JWT in the response body.	Response Body: { "token": "..." }	The client must securely store this token (e.g., in local storage or an HTTP-only cookie).
+3. Access Protected Data	The client sends the token with every request to a secured endpoint.	Request Header: Authorization: Bearer <JWT>	The JwtAuthenticationFilter intercepts the request, validates the token signature, extracts the user ID, and grants access to the requested resource.
 
 
 ## Author

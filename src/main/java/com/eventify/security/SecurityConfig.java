@@ -23,8 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    private UserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -51,6 +51,16 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
+//    // Inside your @Configuration class (e.g., SecurityConfig)
+//
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        // ⚠️ Replace 'userRepository' with your actual JpaRepository for the User entity
+//        return username -> userRepository.findByEmail(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

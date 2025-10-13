@@ -90,7 +90,7 @@ public class ParticipantController {
         var response = fileUploadService.uploadParticipants(eventId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    
+
     @PatchMapping("/{participantId}/status")
     @Operation(summary = "Update participant invitation status",
             description = "Updates the invitation status of a participant (ACCEPTED or DECLINED). User must own the event.")

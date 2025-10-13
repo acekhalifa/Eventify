@@ -32,7 +32,7 @@ public class EventService {
         User currentUser = getCurrentUser();
         Event event = eventMapper.toEntity(request);
         event.setUser(currentUser);
-        
+
         Event savedEvent = eventRepository.save(event);
 
         return eventMapper.toResponse(savedEvent);

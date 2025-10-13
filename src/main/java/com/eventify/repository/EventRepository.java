@@ -17,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByIdAndUserId(Long id, Long userId);
 
-    @Query("SELECT e FROM Event e WHERE e.user.id = :userId AND" +
+    @Query("SELECT e FROM Event e WHERE e.user.id = :userId AND " +
             "LOWER(e.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(e.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(e.location) LIKE LOWER(CONCAT('%', :keyword, '%'))")

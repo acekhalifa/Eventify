@@ -88,7 +88,7 @@ public class ParticipantService {
         participant.setInvitationStatus(request.getInvitationStatus());
 
         Participant updatedParticipant = participantRepository.save(participant);
-        
+
         return participantMapper.toResponse(updatedParticipant);
     }
 

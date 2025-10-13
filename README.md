@@ -138,13 +138,14 @@ All list endpoints support pagination with these query parameters:
 | `size` | Items per page | 
 | `sort` | Sort field and direction 
 
-Simple Authentication Flow
-The Eventify authentication process uses a Stateless JWT (JSON Web Token) flow, which means the server never stores session data. Every request is verified using the token itself.
+## Authentication Flow
+
+The Eventify authentication process uses a Stateless JWT (JSON Web Token) flow. Every request is verified using the token itself.
 
 The 3-Step Process:
 Step	Action	Endpoint & Headers	Description
 1. Login/Register	The user sends credentials (email, password) to the public authentication endpoint.	POST /api/auth/login	The server verifies the credentials and, if valid, generates a signed JWT.
-2. Receive Token	The user's client receives the JWT in the response body.	Response Body: { "token": "..." }	The client must securely store this token (e.g., in local storage or an HTTP-only cookie).
+2. Receive Token	The user's client receives the JWT in the response body.	Response Body: { "token": "..." }, should in case a client is accessing the api, the client must securely store this token (e.g., an HTTP-only cookie).
 3. Access Protected Data	The client sends the token with every request to a secured endpoint.	Request Header: Authorization: Bearer <JWT>	The JwtAuthenticationFilter intercepts the request, validates the token signature, extracts the user ID, and grants access to the requested resource.
 
 

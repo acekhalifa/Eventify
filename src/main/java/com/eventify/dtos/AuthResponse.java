@@ -23,13 +23,10 @@ public class AuthResponse {
     @Schema(description = "User email")
     private String email;
 
-    @Schema(description = "User full name")
-    private String fullName;
 
-    public AuthResponse(String token, Long userId, String email, String fullName) {
+    public AuthResponse(String token, Long userId, String email) {
         this.token = token;
         this.userId = userId;
         this.email = email;
-        this.fullName = fullName;
     }
 }

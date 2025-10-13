@@ -6,7 +6,6 @@ import com.eventify.dtos.RegisterRequest;
 import com.eventify.entity.User;
 import com.eventify.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Transactional
 public class AuthService {
 
     private final UserService userService;
@@ -24,7 +23,6 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    @Transactional
     public AuthResponse register(RegisterRequest request) {
 
         if (userService.existsByEmail(request.getEmail())) {
@@ -34,12 +32,11 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFullName(request.getFullName());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
 
         User savedUser = userService.createUser(user);
         String token = jwtUtil.generateToken(savedUser);
-
-        log.info("User registered successfully: {}", savedUser.getEmail());
 
         return new AuthResponse(
                 token,
@@ -49,7 +46,6 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        log.info("User login attempt: {}", request.getEmail());
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

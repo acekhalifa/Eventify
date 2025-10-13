@@ -14,6 +14,13 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Organiser registration request")
 public class RegisterRequest {
 
+    @NotBlank(message = "First name is required")
+    @Schema(description = "User full name", example = "Anas")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Schema(description = "User full name", example = "Yakubu")
+    private String lastName;
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Schema(description = "User email address", example = "anasyakubu@example.com")
@@ -24,7 +31,4 @@ public class RegisterRequest {
     @Schema(description = "User password", example = "password123")
     private String password;
 
-    @NotBlank(message = "Full name is required")
-    @Schema(description = "User full name", example = "Anas Yakubu")
-    private String fullName;
 }

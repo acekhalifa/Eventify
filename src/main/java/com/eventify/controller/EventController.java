@@ -3,7 +3,9 @@ package com.eventify.controller;
 
 import com.eventify.dtos.EventRequest;
 import com.eventify.dtos.EventResponse;
+import com.eventify.entity.User;
 import com.eventify.service.EventService;
+import com.eventify.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,12 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -25,8 +28,11 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final UserService userService;
 
-    public EventController(EventService eventService) {
+    @Autowired
+    public EventController(EventService eventService, UserService userService) {
+        this.userService = userService;
         this.eventService = eventService;
     }
 
@@ -48,9 +54,8 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of events")
     })
-    public ResponseEntity<List<EventResponse>> getAllEvents() {
-        List<EventResponse> events = eventService.getAllEvents();
-        return ResponseEntity.ok(events);
+    public Page<EventResponse> getAllEvents(Pageable page) {
+        return eventService.getAllEvents(page);
     }
 
     @GetMapping("/{id}")
@@ -98,9 +103,14 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Search completed successfully")
     })
-    public ResponseEntity<List<EventResponse>> searchEvents(
+    public void searchEvents(
             @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword) {
-        List<EventResponse> events = eventService.searchEvents(keyword);
-        return ResponseEntity.ok(events);
+//        List<EventResponse> events = eventService.searchEvents(keyword);
+//        return ResponseEntity.ok();
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userService.getUserByEmail(email);
     }
 }

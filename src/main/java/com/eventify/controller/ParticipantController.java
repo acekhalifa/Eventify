@@ -1,6 +1,8 @@
 package com.eventify.controller;
 
-import com.eventify.dtos.*;
+import com.eventify.dtos.ParticipantDTO.UpdateStatusRequest;
+import com.eventify.dtos.ParticipantRequest;
+import com.eventify.dtos.ParticipantResponse;
 import com.eventify.service.FileUploadService;
 import com.eventify.service.ParticipantService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,15 +41,16 @@ public class ParticipantController {
 
     @GetMapping
     @Operation(summary = "Get all participants for an event",
-            description = "Retrieves a list of all participants registered for a specific event")
+            description = "Retrieves a paginated list of all participants for a specific event (user must own the event)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of participants"),
-            @ApiResponse(responseCode = "404", description = "Event not found")
+            @ApiResponse(responseCode = "404", description = "Event not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    public ResponseEntity<List<ParticipantResponse>> getEventParticipants(
-            @Parameter(description = "Event ID") @PathVariable Long eventId) {
-        List<ParticipantResponse> participants = participantService.getEventParticipants(eventId);
-        return ResponseEntity.ok(participants);
+    public Page<ParticipantResponse> getEventParticipants(
+            @Parameter(description = "Event ID") @PathVariable Long eventId,
+            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        return participantService.getEventParticipants(eventId, pageable);
     }
 
     @PostMapping
@@ -69,7 +75,8 @@ public class ParticipantController {
             @ApiResponse(responseCode = "201", description = "File processed successfully",
                     content = @Content(schema = @Schema(implementation = ParticipantResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid file format or content"),
-            @ApiResponse(responseCode = "404", description = "Event not found")
+            @ApiResponse(responseCode = "404", description = "Event not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public ResponseEntity<List<ParticipantResponse>> uploadParticipants(
             @Parameter(description = "Event ID") @PathVariable Long eventId,
@@ -82,5 +89,22 @@ public class ParticipantController {
 
         var response = fileUploadService.uploadParticipants(eventId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    
+    @PatchMapping("/{participantId}/status")
+    @Operation(summary = "Update participant invitation status",
+            description = "Updates the invitation status of a participant (ACCEPTED or DECLINED). User must own the event.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status updated successfully",
+                    content = @Content(schema = @Schema(implementation = ParticipantResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Event or Participant not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid status"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public ParticipantResponse updateParticipantStatus(
+            @Parameter(description = "Event ID") @PathVariable Long eventId,
+            @Parameter(description = "Participant ID") @PathVariable Long participantId,
+            @Valid @RequestBody UpdateStatusRequest request) {
+        return participantService.updateParticipantStatus(eventId, participantId, request);
     }
 }

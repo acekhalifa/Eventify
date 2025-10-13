@@ -3,10 +3,7 @@ package com.eventify.mapper;
 import com.eventify.dtos.EventRequest;
 import com.eventify.dtos.EventResponse;
 import com.eventify.entity.Event;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,5 +22,13 @@ public interface EventMapper {
 
     @Mapping(target = "participantCount", expression = "java(event.getParticipants().size())")
     EventResponse toResponse(Event event);
+
     List<EventResponse> toEventResponseList(Collection<Event> events);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "participants", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromUpdateRequest(EventRequest updateRequest, @MappingTarget Event event);
 }

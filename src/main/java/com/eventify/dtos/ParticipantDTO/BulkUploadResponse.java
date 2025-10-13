@@ -1,5 +1,6 @@
-package com.eventify.dtos;
+package com.eventify.dtos.ParticipantDTO;
 
+import com.eventify.dtos.ParticipantResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

@@ -16,7 +16,7 @@ A secured RESTful API for managing events and participants with JWT authenticati
 ## Features
 ### User Management
 -  **Register Users** - Add new Users with name, email, and password
--  **Login Users** - allows created users to create and manage event by providing email and password
+-  **Login Users** - allows created users to create and manage events by providing email and password
 
 ### Event Management
 -  **Create Events** - Add new events with title, description, date, and location
@@ -108,25 +108,27 @@ The API documentation is available at:
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register new user |
 | POST | `/api/auth/login` | User login |
-### Events
+
+
+### Events (Protected - Requires Login (JWT))
 
 | Method | Endpoint | Description | Status Codes |
 |--------|----------|-------------|--------------|
-| POST | `/api/events` | Create new event | 201, 400 |
-| GET | `/api/events` | Get all events | 200 |
-| GET | `/api/events/{id}` | Get event by ID | 200, 404 |
-| PUT | `/api/events/{id}` | Update event (full) | 200, 404, 400 |
-| PATCH | `/api/events/{id}` | Update event (partial) | 200, 404 |
-| DELETE | `/api/events/{id}` | Delete event | 204, 404 |
-| GET | `/api/events/search?keyword={keyword}` | Search events | 200 |
+| POST | `/api/events` | Create new event | 201, 400, 401|
+| GET | `/api/events` | Get all events | 200, 401, 401, 401 |
+| GET | `/api/events/{id}` | Get event by ID | 200, 404, 401, |
+| PUT | `/api/events/{id}` | Update event (full) | 200, 404, 400, 401 |
+| PATCH | `/api/events/{id}` | Update event (partial) | 200, 404, 401 |
+| DELETE | `/api/events/{id}` | Delete event | 204, 404, 401 |
+| GET | `/api/events/search?keyword={keyword}` | Search events | 200, 401 |
 
-### Participants
+### Participants (Protected - Requires Login (JWT))
 
 | Method | Endpoint | Description | Status Codes |
 |--------|----------|-------------|--------------|
-| GET | `/api/events/{eventId}/participants` | Get all participants | 200, 404 |
-| POST | `/api/events/{eventId}/participants` | create a particpant | 201, 400 |
-| POST | `/api/events/{eventId}/participants/upload` | Upload participants file | 201, 400, 404 |
+| GET | `/api/events/{eventId}/participants` | Get all participants | 200, 404, 401 |
+| POST | `/api/events/{eventId}/participants` | create a particpant | 201, 400, 401 |
+| POST | `/api/events/{eventId}/participants/upload` | Upload participants file | 201, 400, 404, 401 |
 
 ## Pagination
 
@@ -147,6 +149,26 @@ Step	Action	Endpoint & Headers	Description
 1. Login/Register	The user sends credentials (email, password) to the public authentication endpoint.	POST /api/auth/login	The server verifies the credentials and, if valid, generates a signed JWT.
 2. Receive Token	The user's client receives the JWT in the response body.	Response Body: { "token": "..." }, should in case a client is accessing the api, the client must securely store this token (e.g., an HTTP-only cookie).
 3. Access Protected Data	The client sends the token with every request to a secured endpoint.	Request Header: Authorization: Bearer <JWT>	The JwtAuthenticationFilter intercepts the request, validates the token signature, extracts the user ID, and grants access to the requested resource.
+
+
+## Local HTTPS Setup (Testing Security)
+
+
+Since JWTs are sensitive, they should never be transmitted over unsecured HTTP. This project is configured to run on HTTPS locally for secure testing.
+
+You must have a Java Keystore (.keystore) file containing your SSL certificate and private key.
+
+# Configuration
+A Keystore file containing the SSL certificate and private key required for https to work is configured in the  resources folder and the application.properties file
+
+# Accessing the Application
+After running mvn spring-boot:run, the application will be accessible via prefixing HTTPS to all endpoints e.g.:
+Swagger UI: https://localhost:8443/swagger-ui.html
+
+# Security Warning (Self-Signed Certificate)
+Because the application is configured with a local, self-signed certificate, your browser (Chrome, Firefox, etc.) will display a security warning ("Your connection is not private") when you first access https://localhost:8443.
+
+Action: You must click the "Advanced" or "Proceed/Accept the Risk" option to bypass the warning and continue to the application. This is expected behavior for local development certificates.
 
 
 ## Author

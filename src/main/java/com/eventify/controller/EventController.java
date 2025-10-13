@@ -3,7 +3,6 @@ package com.eventify.controller;
 
 import com.eventify.dtos.EventRequest;
 import com.eventify.dtos.EventResponse;
-import com.eventify.entity.User;
 import com.eventify.service.EventService;
 import com.eventify.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,9 +16,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,7 +40,8 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Event created successfully",
                     content = @Content(schema = @Schema(implementation = EventResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Missing or invalid token")
     })
     public ResponseEntity<EventResponse> createEvent(
             @Valid @RequestBody EventRequest request) {
@@ -50,12 +50,15 @@ public class EventController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all events", description = "Retrieves a list of all events")
+    @Operation(summary = "Get all events",
+            description = "Retrieves a paginated list of all events for the authenticated user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of events")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of events"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    public Page<EventResponse> getAllEvents(Pageable page) {
-        return eventService.getAllEvents(page);
+    public Page<EventResponse> getAllEvents(
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+        return eventService.getAllEvents(pageable);
     }
 
     @GetMapping("/{id}")
@@ -63,7 +66,8 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Event found",
                     content = @Content(schema = @Schema(implementation = EventResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Event not found")
+            @ApiResponse(responseCode = "404", description = "Event not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public ResponseEntity<EventResponse> getEventById(
             @Parameter(description = "Event ID") @PathVariable Long id) {
@@ -72,12 +76,13 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update an event (full)", description = "Fully updates an existing event with all fields")
+    @Operation(summary = "Update an event (full)", description = "Fully updates an existing event (user must own the event)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Event updated successfully",
                     content = @Content(schema = @Schema(implementation = EventResponse.class))),
             @ApiResponse(responseCode = "404", description = "Event not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public ResponseEntity<EventResponse> updateEvent(
             @Parameter(description = "Event ID") @PathVariable Long id,
@@ -87,10 +92,11 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete an event", description = "Deletes an event and all its participants")
+    @Operation(summary = "Delete an event", description = "Deletes an event and all its participants (user must own the event)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Event deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Event not found")
+            @ApiResponse(responseCode = "404", description = "Event not found"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public ResponseEntity<Void> deleteEvent(
             @Parameter(description = "Event ID") @PathVariable Long id) {
@@ -99,18 +105,15 @@ public class EventController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search events", description = "Searches events by title, description, or location")
+    @Operation(summary = "Search events",
+            description = "Searches user's events by title, description, or location with pagination")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Search completed successfully")
+            @ApiResponse(responseCode = "200", description = "Search completed successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    public void searchEvents(
-            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword) {
-//        List<EventResponse> events = eventService.searchEvents(keyword);
-//        return ResponseEntity.ok();
-    }
-
-    private User getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userService.getUserByEmail(email);
+    public Page<EventResponse> searchEvents(
+            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+        return eventService.searchEvents(keyword, pageable);
     }
 }
